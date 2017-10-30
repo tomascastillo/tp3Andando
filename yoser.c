@@ -159,5 +159,5 @@ int main(int argc,char *argv[])
 		pthread_create(&recvt,NULL,recvmg,&cl);
 		pthread_mutex_unlock(&mutex);
 	}
-}
 	return 0;
+	}

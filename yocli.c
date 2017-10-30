@@ -23,7 +23,7 @@ void autorizacion (void * sock)
 	char msg [3]="no";//no autorizado
 	while (strcmp(msg,"si")!=0) {
 		strcpy(msg,"au");
-		write(their_sock,msg,strlen(msg))
+		write(their_sock,msg,strlen(msg));
 		memset(msg,'\0',sizeof(msg));
 
 	if((len = recv(their_sock,msg,3,0)) > 0) {
@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
 	//send(serv,autorizacion)
 	//recv(serv,autorizacion)
 	//mientras la respuesta sea NO se puede iniciar, seguir preguntando y no salir del loop
-	autorizacion(&my_sock)
+	autorizacion(&my_sock);
 	printf("connected to %s, start chatting\n",ip);
 	pthread_create(&recvt,NULL,recvmg,&my_sock);
 	while(fgets(msg,500,stdin) > 0) {
