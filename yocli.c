@@ -35,10 +35,12 @@ void autorizacion (void * sock)
 		puts(msg);
 		memset(msg,'\0',sizeof(msg));
 	}
-	phtread_exit(NULL);
+
 	//else puts("NO entro en el if");
 	///EL PROBLEMA ES Q NO RECIBE NADA
 	}
+	pthread_exit(NULL);
+	//pthread_join(main,NULL);
 
 } 
 void *recvmg(void *sock)
@@ -69,7 +71,7 @@ int main(int argc, char *argv[])
 	int their_sock;
 	int their_addr_size;
 	int portno;
-	pthread_t sendt,recvt;
+	pthread_t sendt,recvt,aut;
 	char msg[500];
 	char username[100];
 	char res[600];
@@ -97,7 +99,8 @@ int main(int argc, char *argv[])
 	//send(serv,autorizacion)
 	//recv(serv,autorizacion)
 	//mientras la respuesta sea NO se puede iniciar, seguir preguntando y no salir del loop
-	autorizacion(&my_sock);
+	//autorizacion(&my_sock);
+	pthread_create(&aut,NULL,autorizacion,&my_sock);
 	printf("connected to %s, start chatting\n",ip);
 	pthread_create(&recvt,NULL,recvmg,&my_sock);
 	while(fgets(msg,500,stdin) > 0) {
