@@ -18,14 +18,16 @@ struct client_info {
 int clients[100];
 int n = 0;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex2 = PTHREAD_MUTEX_INITIALIZER;
 
-void autorizacion (void * sock)
+
+void *autorizacion (void * sock)
 {
 	
-		struct client_info cl = *((struct client_info *)sock);
+	struct client_info cl = *((struct client_info *)sock);
 	int len;
-		//Comienzo la comunicacion con el cliente, voy a recibir el mensaje (o comando) que envie el mismo y guardarlo en "msg"
-		//aca me pregunta si puede entrar a la sala
+	//Comienzo la comunicacion con el cliente, voy a recibir el mensaje (o comando) que envie el mismo y guardarlo en "msg"
+	//aca me pregunta si puede entrar a la sala
 	char msg [3];//no autorizado
 	if((len = recv(cl.sockno,msg,500,0)) > 0) {
 		msg[len] = '\0';
@@ -33,18 +35,20 @@ void autorizacion (void * sock)
 		memset(msg,'\0',sizeof(msg));
 	}
 	//Si no existen la cantidad de clientes necesaria, le envio un AUTONO al cliente y me quedo esperando a q haya mas clientes, sino le mando un AUTOOK
-	pthread_mutex_lock(&mutex);
+	//pthread_mutex_lock(&mutex);
 
-	if (n!=3) {
+	while (n!=3) {
 		strcpy(msg,"no");
 		sendtoall2(msg,cl.sockno);
 		memset(msg,'\0',sizeof(msg)); 
 	}
 	
 		strcpy(msg,"si");
+		//msg="si";
 		sendtoall2(msg,cl.sockno);
 		memset(msg,'\0',sizeof(msg));
-		pthread_mutex_unlock(&mutex);
+		//pthread_mutex_unlock(&mutex);
+		pthread_mutex_unlock(&mutex2);
 
 
 } 
@@ -110,7 +114,7 @@ int main(int argc,char *argv[])
 	int their_sock;
 	socklen_t their_addr_size;
 	int portno;
-	pthread_t sendt,recvt;
+	pthread_t sendt,recvt,aut;
 	char msg[500];
 	int len;
 	struct client_info cl;
@@ -155,7 +159,8 @@ int main(int argc,char *argv[])
 		//recv(cli, autorizacion)
 		//send (cli, autorizacion)
 		//mientras que la cantidad de cli no supere n no puedo seguir con el codigo, y eso debo enviarselo al cliente
-		autorizacion(&cl);
+		pthread_create(&aut,NULL,autorizacion,&cl);
+		pthread_mutex_lock(&mutex2);
 		pthread_create(&recvt,NULL,recvmg,&cl);
 		pthread_mutex_unlock(&mutex);
 	}
