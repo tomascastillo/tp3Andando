@@ -20,18 +20,21 @@ void autorizacion (void * sock)
 	//Si no existen la cantidad de clientes necesaria, le envio un AUTONO al cliente y me quedo esperando a q haya mas clientes, sino le mando un AUTOOK
 	//if(strcmp(msg,"au")==0);
 	int their_sock = *((int *)sock);
-	char msg [3];//no autorizado
-	strcpy(msg,"no");
+	char msg [3]="no";//no autorizado
+	puts("esperando autorizacion");
+	//strcpy(msg,"no");
 	while (strcmp(msg,"si")!=0) {
 		//strcpy(msg,"au");
 		//write(their_sock,msg,strlen(msg));
 		//memset(msg,'\0',sizeof(msg));
-
+	puts("entro en el while");
 	if((len = recv(their_sock,msg,3,0)) > 0) {
+		puts("entro en el if");
 		msg[len] = '\0';
 		puts(msg);
 		memset(msg,'\0',sizeof(msg));
-	}		
+	}
+	else puts("NO entro en el if");
 	}
 
 } 

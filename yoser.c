@@ -24,16 +24,19 @@ pthread_mutex_t mutex2 = PTHREAD_MUTEX_INITIALIZER;
 void sendtoall2(char *msg,int curr)
 {
 	int i;
-	pthread_mutex_lock(&mutex);
+///	pthread_mutex_lock(&mutex);
+	puts("sendtoall2");
 	for(i = 0; i < n; i++) {
-		
+	puts("sendtoall2 FOR");	
 			if(send(clients[i],msg,strlen(msg),0) < 0) {
 				perror("sending failure");
 				continue;
 			}
+			else
+			{puts("sendtoall2 FOR");puts(msg);}
 		
 	}
-	pthread_mutex_unlock(&mutex);
+///	pthread_mutex_unlock(&mutex);
 }
 void sendtoall(char *msg,int curr)
 {
@@ -84,20 +87,20 @@ void *autorizacion (void * sock)
 	//Comienzo la comunicacion con el cliente, voy a recibir el mensaje (o comando) que envie el mismo y guardarlo en "msg"
 	//aca me pregunta si puede entrar a la sala
 	char msg [3];//no autorizado
-	if((len = recv(cl.sockno,msg,500,0)) > 0) {
-		msg[len] = '\0';
-		sendtoall(msg,cl.sockno);
-		memset(msg,'\0',sizeof(msg));
-	}
+	///if((len = recv(cl.sockno,msg,500,0)) > 0) {
+	///	msg[len] = '\0';
+	///	sendtoall(msg,cl.sockno);
+	///	memset(msg,'\0',sizeof(msg));
+	///}
 	//Si no existen la cantidad de clientes necesaria, le envio un AUTONO al cliente y me quedo esperando a q haya mas clientes, sino le mando un AUTOOK
 	//pthread_mutex_lock(&mutex);
-
+	puts("server: verificando autorizacion");
 	while (n!=3) {
 		strcpy(msg,"no");
 		sendtoall2(msg,cl.sockno);
 		memset(msg,'\0',sizeof(msg)); 
 	}
-	
+		puts("enviando autorizacion");
 		strcpy(msg,"si");
 		//msg="si";
 		sendtoall2(msg,cl.sockno);
