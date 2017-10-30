@@ -35,6 +35,7 @@ void autorizacion (void * sock)
 		puts(msg);
 		memset(msg,'\0',sizeof(msg));
 	}
+	phtread_exit(NULL);
 	//else puts("NO entro en el if");
 	///EL PROBLEMA ES Q NO RECIBE NADA
 	}
