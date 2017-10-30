@@ -27,14 +27,16 @@ void autorizacion (void * sock)
 		//strcpy(msg,"au");
 		//write(their_sock,msg,strlen(msg));
 		//memset(msg,'\0',sizeof(msg));
-	puts("entro en el while");
+	//puts("entro en el while");
+	puts(msg);
 	if((len = recv(their_sock,msg,3,0)) > 0) {
 		puts("entro en el if");
 		msg[len] = '\0';
 		puts(msg);
 		memset(msg,'\0',sizeof(msg));
 	}
-	else puts("NO entro en el if");
+	//else puts("NO entro en el if");
+	///EL PROBLEMA ES Q NO RECIBE NADA
 	}
 
 } 

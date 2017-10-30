@@ -27,14 +27,12 @@ void sendtoall2(char *msg,int curr)
 ///	pthread_mutex_lock(&mutex);
 	puts("sendtoall2");
 	for(i = 0; i < n; i++) {
-	puts("sendtoall2 FOR");	
+	//puts("sendtoall2 FOR");	
 			if(send(clients[i],msg,strlen(msg),0) < 0) {
 				perror("sending failure");
 				continue;
 			}
-			else
-			{puts("sendtoall2 FOR");puts(msg);}
-		
+					
 	}
 ///	pthread_mutex_unlock(&mutex);
 }
@@ -95,7 +93,7 @@ void *autorizacion (void * sock)
 	//Si no existen la cantidad de clientes necesaria, le envio un AUTONO al cliente y me quedo esperando a q haya mas clientes, sino le mando un AUTOOK
 	//pthread_mutex_lock(&mutex);
 	puts("server: verificando autorizacion");
-	while (n!=3) {
+	while (n!=2) {
 		strcpy(msg,"no");
 		sendtoall2(msg,cl.sockno);
 		memset(msg,'\0',sizeof(msg)); 
