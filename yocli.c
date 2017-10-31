@@ -12,8 +12,7 @@
 #define AUTONO 98765
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t mutex2 = PTHREAD_MUTEX_INITIALIZER;
-int jaja=0;
+//pthread_mutex_t mutex2 = PTHREAD_MUTEX_INITIALIZER;
 void *autorizacion (void * sock)
 {
 	int len;
@@ -34,23 +33,21 @@ void *autorizacion (void * sock)
 		//memset(msg,'\0',sizeof(msg));
 	//puts("entro en el while");
 	//puts(rta);
-	if((len = recv(their_sock,rta,3,0)) > 0) {
-		//puts("entro en el if");
-		rta[len] = '\0';
-		//puts(rta);
-		//memset(rta,'\0',sizeof(rta));
-		bzero(rta,sizeof(rta));
-		fflush(stdout);
-	}
+		if((len = recv(their_sock,rta,3,0)) > 0) {
+			//puts("entro en el if");
+			rta[len] = '\0';
+			//puts(rta);
+			//memset(rta,'\0',sizeof(rta));
+			bzero(rta,sizeof(rta));
+			fflush(stdout);
+		}
 
 	//else puts("NO entro en el if");
 	///EL PROBLEMA ES Q NO RECIBE NADA
 	}
-
-	jaja=1;
 	puts("Bienvenido a la sala. Escriba:");
 	pthread_mutex_unlock(&mutex);
-	pthread_mutex_unlock(&mutex2);
+//	pthread_mutex_unlock(&mutex2);
 	pthread_exit(NULL);
 
 	//pthread_join(main,NULL);
@@ -120,7 +117,7 @@ int main(int argc, char *argv[])
 	//mientras la respuesta sea NO se puede iniciar, seguir preguntando y no salir del loop
 	//autorizacion(&my_sock);
 	pthread_create(&aut,NULL,autorizacion,&my_sock);
-	pthread_mutex_lock(&mutex);
+	//pthread_mutex_lock(&mutex);
 	pthread_mutex_lock(&mutex);
 	printf("connected to %s, start chatting\n",ip);
 	pthread_create(&recvt,NULL,recvmg,&my_sock);
