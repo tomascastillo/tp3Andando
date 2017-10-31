@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
 	//mientras la respuesta sea NO se puede iniciar, seguir preguntando y no salir del loop
 	//autorizacion(&my_sock);
 	pthread_create(&aut,NULL,autorizacion,&my_sock);
-	//pthread_mutex_lock(&mutex);
+	pthread_mutex_lock(&mutex);
 	pthread_mutex_lock(&mutex);
 	printf("connected to %s, start chatting\n",ip);
 	pthread_create(&recvt,NULL,recvmg,&my_sock);
