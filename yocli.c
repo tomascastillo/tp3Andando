@@ -13,7 +13,7 @@
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t mutex2 = PTHREAD_MUTEX_INITIALIZER;
-
+int jaja=0;
 void *autorizacion (void * sock)
 {
 	int len;
@@ -48,7 +48,7 @@ void *autorizacion (void * sock)
 	}
 	pthread_mutex_unlock(&mutex);
 	pthread_mutex_unlock(&mutex2);
-
+	jaja=1;
 	puts("Bienvenido a la sala. Escriba:");
 	pthread_exit(NULL);
 	//pthread_join(main,NULL);
@@ -60,6 +60,7 @@ void *recvmg(void *sock)
 	int their_sock = *((int *)sock);
 	char msg[500];
 	int len;
+	while(jaja==0){sleep;}
 	while((len = recv(their_sock,msg,500,0)) > 0) {
 		msg[len] = '\0';
 		fputs(msg,stdout);
@@ -67,7 +68,7 @@ void *recvmg(void *sock)
 		bzero(msg,sizeof(msg));
 		fflush(stdout);
 	}
-	pthread_mutex_unlock(&mutex2);
+	//pthread_mutex_unlock(&mutex2);
 
 }
 /*void recvmg2(void *sock)
