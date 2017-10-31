@@ -25,8 +25,8 @@ void *autorizacion (void * sock)
 	int their_sock = *((int *)sock);
 	char rta [4]="no";//no autorizado
 	//pthread_mutex_lock(&mutex2);
-	pthread_mutex_lock(&mutex);
 	puts("Esperando autorizacion del server para entrar a la sala. Por favor, espere.");
+	pthread_mutex_lock(&mutex);
 	//strcpy(msg,"no");
 	while (strcmp(rta,"si")!=0) {
 		//strcpy(msg,"au");
@@ -46,11 +46,12 @@ void *autorizacion (void * sock)
 	//else puts("NO entro en el if");
 	///EL PROBLEMA ES Q NO RECIBE NADA
 	}
-	pthread_mutex_unlock(&mutex);
-	pthread_mutex_unlock(&mutex2);
+
 	jaja=1;
 	puts("Bienvenido a la sala. Escriba:");
 	pthread_exit(NULL);
+	pthread_mutex_unlock(&mutex);
+	pthread_mutex_unlock(&mutex2);
 	//pthread_join(main,NULL);
 
 } 
@@ -119,10 +120,12 @@ int main(int argc, char *argv[])
 	//autorizacion(&my_sock);
 	pthread_create(&aut,NULL,autorizacion,&my_sock);
 	pthread_mutex_lock(&mutex);
+	pthread_mutex_lock(&mutex);
 	printf("connected to %s, start chatting\n",ip);
 	pthread_create(&recvt,NULL,recvmg,&my_sock);
 	fflush(stdin);
 	strcpy(username,argv[1]);
+	printf("\n");
 	while(fgets(msg,500,stdin) > 0) {
 		strcpy(res,username);
 		strcat(res,":");
