@@ -11,7 +11,9 @@
 #define AUTOOK 12345
 #define AUTONO 98765
 
-void autorizacion (void * sock)
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
+void *autorizacion (void * sock)
 {
 	int len;
 		//Comienzo la comunicacion con el cliente, voy a recibir el mensaje (o comando) que envie el mismo y guardarlo en "msg"
@@ -20,31 +22,34 @@ void autorizacion (void * sock)
 	//Si no existen la cantidad de clientes necesaria, le envio un AUTONO al cliente y me quedo esperando a q haya mas clientes, sino le mando un AUTOOK
 	//if(strcmp(msg,"au")==0);
 	int their_sock = *((int *)sock);
-	char msg [3]="no";//no autorizado
+	char rta [3]="no";//no autorizado
+	pthread_mutex_lock(&mutex);
 	puts("esperando autorizacion");
 	//strcpy(msg,"no");
-	while (strcmp(msg,"si")!=0) {
+	while (strcmp(rta,"si")!=0) {
 		//strcpy(msg,"au");
 		//write(their_sock,msg,strlen(msg));
 		//memset(msg,'\0',sizeof(msg));
 	//puts("entro en el while");
-	puts(msg);
-	if((len = recv(their_sock,msg,3,0)) > 0) {
+	puts(rta);
+	if((len = recv(their_sock,rta,3,0)) > 0) {
 		puts("entro en el if");
-		msg[len] = '\0';
-		puts(msg);
-		memset(msg,'\0',sizeof(msg));
+		rta[len] = '\0';
+		puts(rta);
+		memset(rta,'\0',sizeof(rta));
 	}
 
 	//else puts("NO entro en el if");
 	///EL PROBLEMA ES Q NO RECIBE NADA
 	}
+	pthread_mutex_unlock(&mutex);
 	pthread_exit(NULL);
 	//pthread_join(main,NULL);
 
 } 
 void *recvmg(void *sock)
 {
+	pthread_mutex_lock(&mutex);
 	int their_sock = *((int *)sock);
 	char msg[500];
 	int len;
@@ -53,8 +58,10 @@ void *recvmg(void *sock)
 		fputs(msg,stdout);
 		memset(msg,'\0',sizeof(msg));
 	}
+	pthread_mutex_unlock(&mutex);
+
 }
-void recvmg2(void *sock)
+/*void recvmg2(void *sock)
 {
 	int their_sock = *((int *)sock);
 	char msg[500];
@@ -63,7 +70,7 @@ void recvmg2(void *sock)
 		msg[len] = '\0';
 		memset(msg,'\0',sizeof(msg));
 	}
-}
+}*/
 int main(int argc, char *argv[])
 {
 	struct sockaddr_in their_addr;
