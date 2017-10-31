@@ -58,7 +58,7 @@ void *autorizacion (void * sock)
 } 
 void *recvmg(void *sock)
 {
-	pthread_mutex_lock(&mutex2);
+	//pthread_mutex_lock(&mutex2);
 	int their_sock = *((int *)sock);
 	char msg[500];
 	int len;
