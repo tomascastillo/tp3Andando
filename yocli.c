@@ -22,7 +22,7 @@ void *autorizacion (void * sock)
 	//Si no existen la cantidad de clientes necesaria, le envio un AUTONO al cliente y me quedo esperando a q haya mas clientes, sino le mando un AUTOOK
 	//if(strcmp(msg,"au")==0);
 	int their_sock = *((int *)sock);
-	char rta [3]="no";//no autorizado
+	char rta [500]="no";//no autorizado
 	pthread_mutex_lock(&mutex);
 	puts("esperando autorizacion");
 	//strcpy(msg,"no");
@@ -115,6 +115,7 @@ int main(int argc, char *argv[])
 	printf("connected to %s, start chatting\n",ip);
 	pthread_create(&recvt,NULL,recvmg,&my_sock);
 	fflush(stdin);
+	strcpy(username,argv[1]);
 	while(fgets(msg,500,stdin) > 0) {
 		strcpy(res,username);
 		strcat(res,":");
@@ -125,7 +126,7 @@ int main(int argc, char *argv[])
 			exit(1);
 		}
 		bzero(msg,sizeof(msg));
-		bzero(res,sizeof(res);
+		bzero(res,sizeof(res));
 		//memset(msg,'\0',sizeof(msg));
 		//memset(res,'\0',sizeof(res));
 	}
