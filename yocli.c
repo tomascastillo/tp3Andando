@@ -67,7 +67,7 @@ void *recvmg(void *sock)
 		bzero(msg,sizeof(msg));
 		fflush(stdout);
 	}
-	//pthread_mutex_unlock(&mutex);
+	pthread_mutex_unlock(&mutex2);
 
 }
 /*void recvmg2(void *sock)
