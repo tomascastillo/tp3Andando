@@ -12,6 +12,7 @@
 #define AUTONO 98765
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex2 = PTHREAD_MUTEX_INITIALIZER;
 
 void *autorizacion (void * sock)
 {
@@ -45,6 +46,8 @@ void *autorizacion (void * sock)
 	///EL PROBLEMA ES Q NO RECIBE NADA
 	}
 	pthread_mutex_unlock(&mutex);
+	pthread_mutex_unlock(&mutex2);
+
 	puts("Bienvenido a la sala. Escriba:");
 	pthread_exit(NULL);
 	//pthread_join(main,NULL);
@@ -52,7 +55,7 @@ void *autorizacion (void * sock)
 } 
 void *recvmg(void *sock)
 {
-	//pthread_mutex_lock(&mutex);
+	pthread_mutex_lock(&mutex2);
 	int their_sock = *((int *)sock);
 	char msg[500];
 	int len;
