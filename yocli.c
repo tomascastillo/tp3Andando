@@ -52,7 +52,7 @@ void *autorizacion (void * sock)
 } 
 void *recvmg(void *sock)
 {
-	pthread_mutex_lock(&mutex);
+	//pthread_mutex_lock(&mutex);
 	int their_sock = *((int *)sock);
 	char msg[500];
 	int len;
@@ -63,7 +63,7 @@ void *recvmg(void *sock)
 		bzero(msg,sizeof(msg));
 		fflush(stdout);
 	}
-	pthread_mutex_unlock(&mutex);
+	//pthread_mutex_unlock(&mutex);
 
 }
 /*void recvmg2(void *sock)

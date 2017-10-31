@@ -25,7 +25,7 @@ void sendtoall2(char *msg,int curr)
 {
 	int i;
 ///	pthread_mutex_lock(&mutex);
-	puts("sendtoall2");
+	//puts("sendtoall2");
 	for(i = 0; i < n; i++) {
 	//puts("sendtoall2 FOR");	
 			if(send(clients[i],msg,strlen(msg),0) < 0) {
