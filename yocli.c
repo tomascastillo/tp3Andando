@@ -22,7 +22,7 @@ void *autorizacion (void * sock)
 	//Si no existen la cantidad de clientes necesaria, le envio un AUTONO al cliente y me quedo esperando a q haya mas clientes, sino le mando un AUTOOK
 	//if(strcmp(msg,"au")==0);
 	int their_sock = *((int *)sock);
-	char rta [500]="no";//no autorizado
+	char rta [4]="no";//no autorizado
 	pthread_mutex_lock(&mutex);
 	puts("Esperando autorizacion del server para entrar a la sala. Por favor, espere.");
 	//strcpy(msg,"no");
@@ -31,7 +31,7 @@ void *autorizacion (void * sock)
 		//write(their_sock,msg,strlen(msg));
 		//memset(msg,'\0',sizeof(msg));
 	//puts("entro en el while");
-	puts(rta);
+	//puts(rta);
 	if((len = recv(their_sock,rta,3,0)) > 0) {
 		//puts("entro en el if");
 		rta[len] = '\0';
