@@ -49,9 +49,10 @@ void *autorizacion (void * sock)
 
 	jaja=1;
 	puts("Bienvenido a la sala. Escriba:");
-	pthread_exit(NULL);
 	pthread_mutex_unlock(&mutex);
 	pthread_mutex_unlock(&mutex2);
+	pthread_exit(NULL);
+
 	//pthread_join(main,NULL);
 
 } 
