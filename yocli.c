@@ -26,7 +26,7 @@ void *autorizacion (void * sock)
 	char rta [4]="no";//no autorizado
 	//pthread_mutex_lock(&mutex2);
 	puts("Esperando autorizacion del server para entrar a la sala. Por favor, espere.");
-	pthread_mutex_lock(&mutex);
+	//pthread_mutex_lock(&mutex);
 	//strcpy(msg,"no");
 	while (strcmp(rta,"si")!=0) {
 		//strcpy(msg,"au");
