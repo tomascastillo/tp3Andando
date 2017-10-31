@@ -60,7 +60,7 @@ void *recvmg(void *sock)
 	int their_sock = *((int *)sock);
 	char msg[500];
 	int len;
-	while(jaja==0){sleep;}
+	//while(jaja==0){sleep;}
 	while((len = recv(their_sock,msg,500,0)) > 0) {
 		msg[len] = '\0';
 		fputs(msg,stdout);
