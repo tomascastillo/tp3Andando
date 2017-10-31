@@ -24,7 +24,7 @@ void *autorizacion (void * sock)
 	int their_sock = *((int *)sock);
 	char rta [500]="no";//no autorizado
 	pthread_mutex_lock(&mutex);
-	puts("esperando autorizacion");
+	puts("Esperando autorizacion del server para entrar a la sala. Por favor, espere.");
 	//strcpy(msg,"no");
 	while (strcmp(rta,"si")!=0) {
 		//strcpy(msg,"au");
@@ -35,7 +35,7 @@ void *autorizacion (void * sock)
 	if((len = recv(their_sock,rta,3,0)) > 0) {
 		//puts("entro en el if");
 		rta[len] = '\0';
-		puts(rta);
+		//puts(rta);
 		//memset(rta,'\0',sizeof(rta));
 		bzero(rta,sizeof(rta));
 		fflush(stdout);
@@ -45,6 +45,7 @@ void *autorizacion (void * sock)
 	///EL PROBLEMA ES Q NO RECIBE NADA
 	}
 	pthread_mutex_unlock(&mutex);
+	puts("Bienvenido a la sala. Escriba:");
 	pthread_exit(NULL);
 	//pthread_join(main,NULL);
 
