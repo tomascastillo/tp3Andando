@@ -33,10 +33,12 @@ void *autorizacion (void * sock)
 	//puts("entro en el while");
 	puts(rta);
 	if((len = recv(their_sock,rta,3,0)) > 0) {
-		puts("entro en el if");
+		//puts("entro en el if");
 		rta[len] = '\0';
 		puts(rta);
-		memset(rta,'\0',sizeof(rta));
+		//memset(rta,'\0',sizeof(rta));
+		bzero(rta,sizeof(rta));
+		fflush(stdout);
 	}
 
 	//else puts("NO entro en el if");
@@ -56,7 +58,9 @@ void *recvmg(void *sock)
 	while((len = recv(their_sock,msg,500,0)) > 0) {
 		msg[len] = '\0';
 		fputs(msg,stdout);
-		memset(msg,'\0',sizeof(msg));
+		//memset(msg,'\0',sizeof(msg));
+		bzero(msg,sizeof(msg));
+		fflush(stdout);
 	}
 	pthread_mutex_unlock(&mutex);
 
@@ -110,6 +114,7 @@ int main(int argc, char *argv[])
 	pthread_create(&aut,NULL,autorizacion,&my_sock);
 	printf("connected to %s, start chatting\n",ip);
 	pthread_create(&recvt,NULL,recvmg,&my_sock);
+	fflush(stdin);
 	while(fgets(msg,500,stdin) > 0) {
 		strcpy(res,username);
 		strcat(res,":");
@@ -119,8 +124,10 @@ int main(int argc, char *argv[])
 			perror("message not sent");
 			exit(1);
 		}
-		memset(msg,'\0',sizeof(msg));
-		memset(res,'\0',sizeof(res));
+		bzero(msg,sizeof(msg));
+		bzero(res,sizeof(res);
+		//memset(msg,'\0',sizeof(msg));
+		//memset(res,'\0',sizeof(res));
 	}
 	pthread_join(recvt,NULL);
 	close(my_sock);
