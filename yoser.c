@@ -93,7 +93,7 @@ void *autorizacion (void * sock)
 	//Si no existen la cantidad de clientes necesaria, le envio un AUTONO al cliente y me quedo esperando a q haya mas clientes, sino le mando un AUTOOK
 	//pthread_mutex_lock(&mutex);
 	puts("server: verificando autorizacion");
-	while (n!=2) {
+	while (n!=3) {
 		strcpy(msg,"no");
 		sendtoall2(msg,cl.sockno);
 		memset(msg,'\0',sizeof(msg)); 
