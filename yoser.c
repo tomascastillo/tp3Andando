@@ -17,7 +17,7 @@ struct client_info {
 	char ip[INET_ADDRSTRLEN];
 };
 int clients[100];
-int n = 0;
+int n = 0,salaLLena=0;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t mutex2 = PTHREAD_MUTEX_INITIALIZER;
 
@@ -98,6 +98,7 @@ void *autorizacion (void * sock)
 		memset(msg,'\0',sizeof(msg)); 
 	}
 		puts("enviando autorizacion");
+		salaLLena=1;
 		strcpy(msg,"si");
 		sendtoall2(msg,cl.sockno);
 		memset(msg,'\0',sizeof(msg));
@@ -159,7 +160,7 @@ int main(int argc,char *argv[])
 		pthread_mutex_lock(&mutex2);
 		pthread_create(&recvt,NULL,recvmg,&cl);
 		pthread_mutex_unlock(&mutex);
-		//if(n==1){salirServer();}
+		if(n==1&&salaLLena==1){salirServer();}
 	}
 	return 0;
 	}
