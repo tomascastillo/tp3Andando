@@ -82,6 +82,8 @@ void *recvmg(void *sock)
 		}
 	}
 	n--;
+	printf("\nN: %d\n",n);
+	if(n==1&&salaLlena==1){salirServer();}
 	pthread_mutex_unlock(&mutex);
 }
 
@@ -159,8 +161,6 @@ int main(int argc,char *argv[])
 		pthread_create(&aut,NULL,autorizacion,&cl);
 		pthread_mutex_lock(&mutex2);
 		pthread_create(&recvt,NULL,recvmg,&cl);
-		printf("\nN: %d\n",n);
-		if(n==1&&salaLlena==1){salirServer();}
 		pthread_mutex_unlock(&mutex);
 
 	}
