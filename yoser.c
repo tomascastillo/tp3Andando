@@ -22,15 +22,6 @@ pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t mutex2 = PTHREAD_MUTEX_INITIALIZER;
 
 void intHandler (int num);
-void salirServer(){
-	int i;
-	printf("\nStopping server\n");
-	sendtoall("SV_EXIT",-1);
-	for(i=0 ; i<n;i++){
-		close(clients[i]);
-	}
-	exit(0);
-}
 void sendtoall2(char *msg,int curr)
 {
 	int i;
@@ -57,6 +48,16 @@ void sendtoall(char *msg,int curr)
 	}
 	pthread_mutex_unlock(&mutex);
 }
+void salirServer(){
+	int i;
+	printf("\nStopping server\n");
+	sendtoall("SV_EXIT",-1);
+	for(i=0 ; i<n;i++){
+		close(clients[i]);
+	}
+	exit(0);
+}
+
 void *recvmg(void *sock)
 {
 	struct client_info cl = *((struct client_info *)sock);
