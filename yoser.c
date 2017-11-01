@@ -20,12 +20,19 @@ int n = 0;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t mutex2 = PTHREAD_MUTEX_INITIALIZER;
 
-
+void intHandler (int num);
+void salirServer(){
+	int i;
+	printf("\nStopping server\n");
+	sendtoall("SV_EXIT",-1);
+	for(i=0 ; i<n;i++){
+		close(clients[i]);
+	}
+	exit(0);
+}
 void sendtoall2(char *msg,int curr)
 {
 	int i;
-///	pthread_mutex_lock(&mutex);
-	//puts("sendtoall2");
 	for(i = 0; i < n; i++) {
 	//puts("sendtoall2 FOR");	
 			if(send(clients[i],msg,strlen(msg),0) < 0) {
@@ -34,7 +41,6 @@ void sendtoall2(char *msg,int curr)
 			}
 					
 	}
-///	pthread_mutex_unlock(&mutex);
 }
 void sendtoall(char *msg,int curr)
 {
@@ -82,16 +88,7 @@ void *autorizacion (void * sock)
 	
 	struct client_info cl = *((struct client_info *)sock);
 	int len;
-	//Comienzo la comunicacion con el cliente, voy a recibir el mensaje (o comando) que envie el mismo y guardarlo en "msg"
-	//aca me pregunta si puede entrar a la sala
 	char msg [3];//no autorizado
-	///if((len = recv(cl.sockno,msg,500,0)) > 0) {
-	///	msg[len] = '\0';
-	///	sendtoall(msg,cl.sockno);
-	///	memset(msg,'\0',sizeof(msg));
-	///}
-	//Si no existen la cantidad de clientes necesaria, le envio un AUTONO al cliente y me quedo esperando a q haya mas clientes, sino le mando un AUTOOK
-	//pthread_mutex_lock(&mutex);
 	puts("server: verificando autorizacion");
 	while (n!=2) {
 		strcpy(msg,"no");
@@ -100,10 +97,8 @@ void *autorizacion (void * sock)
 	}
 		puts("enviando autorizacion");
 		strcpy(msg,"si");
-		//msg="si";
 		sendtoall2(msg,cl.sockno);
 		memset(msg,'\0',sizeof(msg));
-		//pthread_mutex_unlock(&mutex);
 		pthread_mutex_unlock(&mutex2);
 
 
@@ -119,8 +114,11 @@ int main(int argc,char *argv[])
 	char msg[500];
 	int len;
 	struct client_info cl;
-	char ip[INET_ADDRSTRLEN];;
-	;
+	char ip[INET_ADDRSTRLEN];
+	signal(SIGINT, INThandler);
+
+	
+	
 	if(argc > 2) {
 		printf("too many arguments");
 		exit(1);
@@ -155,15 +153,21 @@ int main(int argc,char *argv[])
 		strcpy(cl.ip,ip);
 		clients[n] = their_sock;
 		n++;
-		//DETERMINAR CANT CLI
-		//aca el cli me va a preguntar sobre la cantidad
-		//recv(cli, autorizacion)
-		//send (cli, autorizacion)
-		//mientras que la cantidad de cli no supere n no puedo seguir con el codigo, y eso debo enviarselo al cliente
 		pthread_create(&aut,NULL,autorizacion,&cl);
 		pthread_mutex_lock(&mutex2);
 		pthread_create(&recvt,NULL,recvmg,&cl);
 		pthread_mutex_unlock(&mutex);
+		//if(n==1){salirServer();}
 	}
 	return 0;
 	}
+
+void intHandler (int num){
+	int i;
+	printf("\nStopping server\n");
+	sendtoall("SV_EXIT",-1);
+	for(i=0 ; i<n;i++){
+		close(clients[i]);
+	}
+	exit(0);
+}
