@@ -94,7 +94,7 @@ void *autorizacion (void * sock)
 	int len;
 	char msg [3];//no autorizado
 	puts("server: verificando autorizacion");
-	while (n!=3) {
+	while (n!=2) {
 		strcpy(msg,"no");
 		sendtoall2(msg,cl.sockno);
 		memset(msg,'\0',sizeof(msg)); 
