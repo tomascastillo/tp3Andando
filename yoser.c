@@ -141,7 +141,7 @@ int main(int argc,char *argv[])
 		exit(1);
 	}
 
-	if(listen(my_sock,5) != 0) {
+	if(listen(my_sock,10) != 0) {
 		perror("listening unsuccessful");
 		exit(1);
 	}
