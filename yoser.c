@@ -115,7 +115,7 @@ int main(int argc,char *argv[])
 	int len;
 	struct client_info cl;
 	char ip[INET_ADDRSTRLEN];
-	signal(SIGINT, INThandler);
+	signal(SIGINT, intHandler);
 
 	
 	
