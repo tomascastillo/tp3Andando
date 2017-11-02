@@ -32,7 +32,7 @@ int isValidIpAddress(char *ipAddress)
 }
 
 int esPuertoValido(int puerto){
-		if(puerto<1025 || puerto>65535){
+		if(puerto<1024 || puerto>65535){
 			puts("Error. El puerto debe ser un entero entre 1025 y 65535\n");
 			return 0;//no valido
 	}
@@ -74,9 +74,13 @@ int hostnameToIp(char * hostname , char* ip){
 void *autorizacion (void * sock){
 	int bytesRecv;
 	int serverSock = *((int *)sock);
-	char rta [4]="no";
+	char rta [20]="no";
 	puts("Esperando autorizacion del server para entrar a la sala. Por favor, espere.");
-	while (strcmp(rta,"si")!=0) {
+	if(strcmp(rta,"AUT_LLENA")==0){
+		puts("No se puede entrar a la sala porque esta llena. Se terminara la ejecucion de este proceso");
+		serverSalir();
+	}
+	while (strcmp(rta,"AUT_SI")!=0) {
 		if((bytesRecv = recv(serverSock,rta,3,0)) > 0) {
 			rta[bytesRecv] = '\0';
 		}
@@ -95,7 +99,7 @@ void *threadRecvMensaje(void *sock){
 	int bytesRecv;
 	while((bytesRecv = recv(serverSock,mensaje,1024,0)) > 0) {
 		mensaje[bytesRecv] = '\0';
-		if(strcmp(mensaje,"SV_EXIT")==0){
+		if(strcmp(mensaje,"SALIR_DEL_SERVER")==0){
 			serverSalir();
 		}
 		fputs(mensaje,stdout);
@@ -132,7 +136,6 @@ int main(int argc, char *argv[])
 	memset(serverAddr.sin_zero,'\0',sizeof(serverAddr.sin_zero));
 	serverAddr.sin_family = AF_INET;
 	serverAddr.sin_port = htons(nPuerto);
-	//serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
 	serverAddr.sin_addr.s_addr = inet_addr(serverIp);
 
 	
@@ -144,11 +147,9 @@ int main(int argc, char *argv[])
 	pthread_create(&aut,NULL,autorizacion,&cliSock);
 	pthread_mutex_lock(&mutex);
 	pthread_mutex_lock(&mutex);
-	//printf("connected to %s, start chatting\n",ip);
 	pthread_create(&recvt,NULL,threadRecvMensaje,&cliSock);
 	fflush(stdin);
 	strcpy(nickname,argv[3]);
-	//printf("\n");
 	while(fgets(mensaje,1024,stdin) > 0) {
 		strcpy(res,nickname);
 		strcat(res,":");
@@ -158,7 +159,7 @@ int main(int argc, char *argv[])
 			perror("Error: mensaje no enviado");
 			exit(1);
 		}
-		printf("%s\n",res);
+		//printf("%s\n",res);
 		bzero(mensaje,sizeof(mensaje));
 		bzero(res,sizeof(res));
 	}
