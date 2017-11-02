@@ -82,6 +82,7 @@ void *autorizacion (void * sock){
 				if(strcmp(rta,"AUT_LL")==0){
 		puts("No se puede entrar a la sala porque esta llena. Se terminara la ejecucion de este proceso");
 		serverSalir();
+		puts(rta);
 		}
 		}
 
