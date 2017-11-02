@@ -69,13 +69,16 @@ int main(int argc, char *argv[])
 	char res[600];
 	char ip[INET_ADDRSTRLEN];
 	int len;
+	char nickname[600];
 
-	if(argc > 3) {
-		printf("too many arguments");
+	if(argc != 4) {
+		puts("Error. La ejecucion debe ser del siguiente estilo: ./cliente {ip/hostname} {puerto server} {nickname}");
+		printf(". Ejemplo de ejecucion: ./cliente localhost 3500 tomas ");
 		exit(1);
 	}
 	portno = atoi(argv[2]);
 	strcpy(username,argv[1]);
+	strcpy(nickname,argv[3]);
 	my_sock = socket(AF_INET,SOCK_STREAM,0);
 	memset(their_addr.sin_zero,'\0',sizeof(their_addr.sin_zero));
 	their_addr.sin_family = AF_INET;
@@ -93,10 +96,10 @@ int main(int argc, char *argv[])
 	//printf("connected to %s, start chatting\n",ip);
 	pthread_create(&recvt,NULL,recvmg,&my_sock);
 	fflush(stdin);
-	strcpy(username,argv[1]);
+	strcpy(nickname,argv[3]);
 	printf("\n");
 	while(fgets(msg,500,stdin) > 0) {
-		strcpy(res,username);
+		strcpy(res,nickname);
 		strcat(res,":");
 		strcat(res,msg);
 		len = write(my_sock,res,strlen(res));
@@ -104,8 +107,7 @@ int main(int argc, char *argv[])
 			perror("message not sent");
 			exit(1);
 		}
-		puts("msg:");
-		puts(msg);
+		printf("%s\n",res);
 		bzero(msg,sizeof(msg));
 		bzero(res,sizeof(res));
 	}

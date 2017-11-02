@@ -17,7 +17,7 @@ struct client_info {
 	char ip[INET_ADDRSTRLEN];
 };
 int clients[100];
-int n = 0,salaLlena=0;
+int n = 0,salaLlena=0,cantMinCli;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t mutex2 = PTHREAD_MUTEX_INITIALIZER;
 
@@ -100,7 +100,7 @@ void *autorizacion (void * sock)
 	char msg [3];//no autorizado
 
 	puts("server: verificando autorizacion");
-	while (n!=3) {
+	while (n!=cantMinCli) {
 		strcpy(msg,"no");
 		sendtoall2(msg,cl.sockno);
 		memset(msg,'\0',sizeof(msg)); 
@@ -131,11 +131,13 @@ int main(int argc,char *argv[])
 
 	
 	
-	if(argc > 2) {
-		printf("too many arguments");
+	if(argc != 3) {
+		puts("Error. La ejecucion debe ser del siguiente estilo: ./server {puerto server} {cantidad de clientes en la sala}");
+		printf(". Ejemplo de ejecucion: ./server 3500 3");
 		exit(1);
 	}
 	portno = atoi(argv[1]);
+	cantMinCli = atoi(argv[2]);
 	my_sock = socket(AF_INET,SOCK_STREAM,0);
 	memset(my_addr.sin_zero,'\0',sizeof(my_addr.sin_zero));
 	my_addr.sin_family = AF_INET;
