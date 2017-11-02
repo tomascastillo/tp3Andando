@@ -66,6 +66,7 @@ void *recvmg(void *sock)
 	int i;
 	int j;
 	pthread_mutex_lock(&mutex2);
+	pthread_mutex_lock(&mutex2);
 	while((len = recv(cl.sockno,msg,500,0)) > 0) {
 		msg[len] = '\0';
 		sendtoall(msg,cl.sockno);
@@ -94,7 +95,6 @@ void *autorizacion (void * sock)
 	struct client_info cl = *((struct client_info *)sock);
 	int len;
 	char msg [3];//no autorizado
-		pthread_mutex_lock(&mutex2);
 
 	puts("server: verificando autorizacion");
 	while (n!=3) {
