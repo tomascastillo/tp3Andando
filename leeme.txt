@@ -1,0 +1,69 @@
+TP N3, Ejercicio 4, entrega 1.
+Integrantes:
+39769558|Castillo, Tomas Eugenio
+38325166|Gonzalez Romero, Matias
+36808247|Oviedo, Leandro
+39486259|Rivero, Facundo
+40134364|Sanabria, Facundo
+
+.USO:
+1) Compilar con el script "compilar.sh". EJEMPLO: ./compilar.sh
+2) Busque en la carpeta de ejecución de compilar.sh, ahí estarán los ejecutables servidor y cliente.
+3) En una terminal ejecutar servidor.sh y en otra/s terminal/es ejecutar cliente.sh., de acuerdo a la cantidad de clientes deseada en la sala de chat.
+
+Para cerrar el server, presione CTRL+C desde donde se esté ejecutando el mismo, eso provocará que se cierren los clientes también.
+Para cerrar un cliente, también puede presionar CTRL+C, cuando en la sala quede un solo cliente, el servidor y el cliente se cerrarán automáticamente.
+
+El proceso servidor, debe ejecutarse de la siguiente forma:
+./servidor {puerto} {cantidad de clientes en la sala}
+*El puerto debe ser un entero entre 1025 y 65535
+
+El proceso cliente, debe ejecutarse de la siguiente forma:
+./cliente {ip o hostname del server} {puerto} {nickname}
+
+.EJEMPLO
+* Ejecutamos sobre una terminal el proceso Servidor 
+tomas@tomas-VirtualBox:~/tp3/ejercicio4$ ./servidor 3000 2
+*SALIDA:
+Server: esperando que se conecten todos los clientes para comenzar la sala de chat
+La ip 2.0.237.250 se ha conectado
+Server: verificando autorizacion para entrar a la sala.
+La ip 2.0.237.252 se ha conectado
+Server: Enviando autorizacion a los clientes
+Server: verificando autorizacion para entrar a la sala.
+Server: Enviando autorizacion a los clientes
+El cliente: 2.0.237.250 se ha desconectado
+
+Server: cantidad de clientes en la sala: 1
+
+Cerrando el servidor...
+
+
+
+*********************************************************************************************************************
+* el servidor queda a la espera por una conexion, en otra terminal ejecutamos el primer cliente
+tomas@tomas-VirtualBox:~/tp3/ejercicio4$ ./cliente localhost 3000 tomas
+*SALIDA:
+
+Esperando autorizacion del server para entrar a la sala. Por favor, espere.
+
+Bienvenido a la sala. Ingrese un mensaje:
+
+foca:hola, tomas
+hola, foca
+
+^C
+******************************************************************************************************************
+* ahora ejecutamos el segundo cliente
+tomas@tomas-VirtualBox:~/tp3/ejercicio4$ ./cliente localhost 3000 foca
+*SALIDA:
+
+
+Esperando autorizacion del server para entrar a la sala. Por favor, espere.
+
+Bienvenido a la sala. Ingrese un mensaje:
+
+hola, tomas
+tomas:hola, foca
+******************************************************************************************************************
+
