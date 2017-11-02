@@ -81,14 +81,11 @@ void *autorizacion (void * sock){
 			rta[bytesRecv] = '\0';
 				if(strcmp(rta,"AUT_LL")==0){
 		puts("No se puede entrar a la sala porque esta llena. Se terminara la ejecucion de este proceso");
-		puts(rta);
 		serverSalir();
 		}
 		}
 
 	}
-			puts(rta);
-
 	puts("\nBienvenido a la sala. Ingrese un mensaje:\n");
 	pthread_mutex_unlock(&mutex);
 	bzero(rta,sizeof(rta));
