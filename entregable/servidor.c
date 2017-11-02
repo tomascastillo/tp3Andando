@@ -98,7 +98,7 @@ void *autorizacion (void * sock){
 	char mensaje [20];
 
 	puts("Server: verificando autorizacion para entrar a la sala.");
-	if(salaLlena==1&&cantCliActuales==cantMinCli){
+	if(salaLlena==1&&cantCliActuales==cantMinCli+1){
 		strcpy(mensaje,"AUT_LL");
 		enviarAlMismo(mensaje,cliente.nSocket);
 		memset(mensaje,'\0',sizeof(mensaje));	
