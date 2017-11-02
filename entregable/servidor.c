@@ -23,7 +23,7 @@ pthread_mutex_t mutex2 = PTHREAD_MUTEX_INITIALIZER;
 void intHandler (int num);
 
 int esPuertoValido(int puerto){
-		if(puerto<1025 || puerto>65535){
+		if(puerto<1024 || puerto>65535){
 			puts("Error. El puerto debe ser un entero entre 1025 y 65535\n");
 			puts(" La ejecucion debe ser del siguiente estilo: ./server {puerto server} {cantidad de clientes en la sala}");
 			printf(". Ejemplo de ejecucion: ./server 3500 3");
@@ -58,7 +58,7 @@ void enviarATodos(char *mensaje,int actual){
 void salirServer(){
 	int i;
 	printf("\nCerrando el servidor...\n");
-	enviarATodos("SV_EXIT",-1);
+	enviarATodos("SALIR_DEL_SERVER",-1);
 	for(i=0 ; i<cantCliActuales;i++){
 		close(vecCli[i]);
 	}
@@ -145,7 +145,7 @@ int main(int argc,char *argv[])
 		exit(1);
 	}
 
-	if(listen(serverSock,10) != 0) {
+	if(listen(serverSock,cantMinCli) != 0) {
 		perror("Server: error en listen");
 		exit(1);
 	}
@@ -174,7 +174,7 @@ int main(int argc,char *argv[])
 void intHandler (int num){
 	int i;
 	printf("\nCerrando el servidor...\n");
-	enviarATodos("SV_EXIT",-1);
+	enviarATodos("SALIR_DEL_SERVER",-1);
 	for(i=0 ; i<cantCliActuales;i++){
 		close(vecCli[i]);
 	}
