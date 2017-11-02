@@ -109,6 +109,7 @@ void *autorizacion (void * sock)
 		sendtoall2(msg,cl.sockno);
 		memset(msg,'\0',sizeof(msg));
 		pthread_mutex_unlock(&mutex2);
+		pthread_exit(NULL);
 
 
 } 

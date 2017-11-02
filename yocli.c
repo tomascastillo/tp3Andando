@@ -104,6 +104,8 @@ int main(int argc, char *argv[])
 			perror("message not sent");
 			exit(1);
 		}
+		puts("msg:");
+		puts(msg);
 		bzero(msg,sizeof(msg));
 		bzero(res,sizeof(res));
 	}
