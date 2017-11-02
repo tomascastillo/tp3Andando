@@ -71,7 +71,7 @@ void *recvmg(void *sock)
 	//pthread_mutex_lock(&mutex2);
 	while((len = recv(cl.sockno,msg,500,0)) > 0) {
 		msg[len] = '\0';
-		puts(msg);
+		//puts(msg);
 		sendtoall(msg,cl.sockno);
 		memset(msg,'\0',sizeof(msg));
 	}
@@ -142,7 +142,7 @@ int main(int argc,char *argv[])
 	memset(my_addr.sin_zero,'\0',sizeof(my_addr.sin_zero));
 	my_addr.sin_family = AF_INET;
 	my_addr.sin_port = htons(portno);
-	my_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	my_addr.sin_addr.s_addr = inet_addr(INADDR_ANY);
 	their_addr_size = sizeof(their_addr);
 
 	if(bind(my_sock,(struct sockaddr *)&my_addr,sizeof(my_addr)) != 0) {
