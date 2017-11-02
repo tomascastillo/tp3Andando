@@ -53,7 +53,7 @@ void sendtoall(char *msg,int curr)
 void salirServer(){
 	int i;
 	printf("\nStopping server\n");
-	sendtoall2("SV_EXIT",-1);
+	sendtoall("SV_EXIT",-1);
 	for(i=0 ; i<n;i++){
 		close(clients[i]);
 	}
