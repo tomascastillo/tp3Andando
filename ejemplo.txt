@@ -1,0 +1,47 @@
+tomas@tomas-VirtualBox:~/tp3/ejercicio4$ ./servidor 3000 2
+SALIDA:
+
+
+Server: esperando que se conecten todos los clientes para comenzar la sala de chat
+La ip 2.0.237.250 se ha conectado
+Server: verificando autorizacion para entrar a la sala.
+La ip 2.0.237.252 se ha conectado
+Server: Enviando autorizacion a los clientes
+Server: verificando autorizacion para entrar a la sala.
+Server: Enviando autorizacion a los clientes
+El cliente: 2.0.237.250 se ha desconectado
+
+Server: cantidad de clientes en la sala: 1
+
+Cerrando el servidor...
+
+
+
+******************************************************************************************************************
+tomas@tomas-VirtualBox:~/tp3/ejercicio4$ ./cliente localhost 3000 tomas
+SALIDA:
+
+
+
+Esperando autorizacion del server para entrar a la sala. Por favor, espere.
+
+Bienvenido a la sala. Ingrese un mensaje:
+
+foca:hola, tomas
+hola, foca
+
+^C
+
+******************************************************************************************************************
+tomas@tomas-VirtualBox:~/tp3/ejercicio4$ ./cliente localhost 3000 foca
+SALIDA:
+
+
+Esperando autorizacion del server para entrar a la sala. Por favor, espere.
+
+Bienvenido a la sala. Ingrese un mensaje:
+
+hola, tomas
+tomas:hola, foca
+
+******************************************************************************************************************
