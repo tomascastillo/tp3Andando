@@ -95,17 +95,22 @@ void *threadRecvMensaje(void *sock){
 void *autorizacion (void * sock){
 	struct sInfoCli cliente = *((struct sInfoCli *)sock);
 	int bytesRecv;
-	char mensaje [3];
+	char mensaje [20];
 
 	puts("Server: verificando autorizacion para entrar a la sala.");
+	if(salaLlena==1&&cantCliActuales==cantMinCli){
+		strcpy(mensaje,"AUT_LLENA");
+		enviarAlMismo(mensaje,cliente.nSocket);
+		memset(mensaje,'\0',sizeof(mensaje));	
+	}
 	while (cantCliActuales!=cantMinCli&&salaLlena==0) {
-		strcpy(mensaje,"no");
+		strcpy(mensaje,"AUT_NO");
 		enviarAlMismo(mensaje,cliente.nSocket);
 		memset(mensaje,'\0',sizeof(mensaje)); 
 	}
 		puts("Server: Enviando autorizacion a los clientes");
 		salaLlena=1;
-		strcpy(mensaje,"si");
+		strcpy(mensaje,"AUT_SI");
 		enviarAlMismo(mensaje,cliente.nSocket);
 		memset(mensaje,'\0',sizeof(mensaje));
 		pthread_mutex_unlock(&mutex2);
