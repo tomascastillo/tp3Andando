@@ -76,13 +76,21 @@ void *autorizacion (void * sock){
 	int serverSock = *((int *)sock);
 	char rta [20]="no";
 	puts("Esperando autorizacion del server para entrar a la sala. Por favor, espere.");
+	if(strcmp(rta,"AUT_LLENA")==0){
+				if((bytesRecv = recv(serverSock,rta,3,0)) > 0) {
+			rta[bytesRecv] = '\0';
+					puts("No se puede entrar a la sala porque esta llena. Se terminara la ejecucion de este proceso");
+		serverSalir();
+		}
+
+	}
+	puts("if");
 	while (strcmp(rta,"AUT_SI")!=0) {
 		if((bytesRecv = recv(serverSock,rta,3,0)) > 0) {
 			rta[bytesRecv] = '\0';
 		}
 
 	}
-	if(strcmp(rta,"AUT_LLENA")==0){puts("No se puede entrar a la sala porque esta llena. Se terminara la ejecucion de este proceso");exit(0);}
 	puts("\nBienvenido a la sala. Ingrese un mensaje:\n");
 	pthread_mutex_unlock(&mutex);
 	bzero(rta,sizeof(rta));
