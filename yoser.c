@@ -88,7 +88,7 @@ void *recvmg(void *sock)
 	}
 	n--;
 	printf("\nN: %d\n",n);
-	//if(n==1&&salaLlena==1){salirServer();}
+	if(n==1&&salaLlena==1){salirServer();}
 	pthread_mutex_unlock(&mutex);
 }
 
