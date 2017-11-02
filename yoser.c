@@ -69,6 +69,7 @@ void *recvmg(void *sock)
 	pthread_mutex_lock(&mutex2);
 	while((len = recv(cl.sockno,msg,500,0)) > 0) {
 		msg[len] = '\0';
+		puts(msg);
 		sendtoall(msg,cl.sockno);
 		memset(msg,'\0',sizeof(msg));
 	}
