@@ -26,12 +26,14 @@ void sendtoall2(char *msg,int curr)
 {
 	int i;
 	for(i = 0; i < n; i++) {
-	//puts("sendtoall2 FOR");	
+	//puts("sendtoall2 FOR");
+		if(clients[i] == curr) {
+	
 			if(send(clients[i],msg,strlen(msg),0) < 0) {
 				perror("sending failure");
 				continue;
 			}
-					
+		}					
 	}
 }
 void sendtoall(char *msg,int curr)
