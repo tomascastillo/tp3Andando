@@ -7,6 +7,8 @@
 #include <netinet/in.h>
 #include <stdio.h>
 #include <string.h>
+#include<errno.h> //For errno - the error number
+#include<netdb.h> //hostent
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 int cliSock;
