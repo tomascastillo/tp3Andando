@@ -18,6 +18,35 @@ void serverSalir(){
 	exit(0);
 }
 
+int isValidIpAddress(char *ipAddress)
+{
+    struct sockaddr_in sa;
+    int result = inet_pton(AF_INET, ipAddress, &(sa.sin_addr));
+    //return result;//da distinto de 0 si es valido
+	if(result==0){
+		puts("Error. La ip no es valida\n");
+		return 0;
+	}
+	else
+		return 1;
+}
+
+int esPuertoValido(int puerto){
+		if(puerto<1025 || puerto>65535){
+			puts("Error. El puerto debe ser un entero entre 1025 y 65535\n");
+			return 0;//no valido
+	}
+}
+
+void validarParam(char * ip, int puerto){
+    if(isValidIpAddress(ip)==0 || esPuertoValido(puerto) == 0){
+		puts("Error en la validacion de parametros.\n");
+		puts("La ejecucion debe ser del siguiente estilo: ./cliente {ip/hostname} {puerto server} {nickname}");
+		printf(". Ejemplo de ejecucion: ./cliente localhost 3500 tomas ");
+		exit(0);
+	}	
+}
+
 int hostnameToIp(char * hostname , char* ip){
     struct hostent *he;
     struct in_addr **addr_list;
@@ -97,6 +126,7 @@ int main(int argc, char *argv[])
 	if(hostnameToIp(hostname,serverIp)==1){
 		strcpy(serverIp,hostname);
 	}
+	validarParam(serverIp,nPuerto);
 	strcpy(nickname,argv[3]);
 	cliSock = socket(AF_INET,SOCK_STREAM,0);
 	memset(serverAddr.sin_zero,'\0',sizeof(serverAddr.sin_zero));

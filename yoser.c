@@ -22,6 +22,15 @@ pthread_mutex_t mutex2 = PTHREAD_MUTEX_INITIALIZER;
 
 void intHandler (int num);
 
+int esPuertoValido(int puerto){
+		if(puerto<1025 || puerto>65535){
+			puts("Error. El puerto debe ser un entero entre 1025 y 65535\n");
+			puts(" La ejecucion debe ser del siguiente estilo: ./server {puerto server} {cantidad de clientes en la sala}");
+			printf(". Ejemplo de ejecucion: ./server 3500 3");
+			exit(0);
+	}
+}
+
 void enviarAlMismo(char *mensaje,int actual){
 	int i;
 	for(i = 0; i < cantCliActuales; i++) {
@@ -94,7 +103,7 @@ void *autorizacion (void * sock){
 		enviarAlMismo(mensaje,cliente.nSocket);
 		memset(mensaje,'\0',sizeof(mensaje)); 
 	}
-		puts("enviando autorizacion");
+		puts("Server: Enviando autorizacion a los clientes");
 		salaLlena=1;
 		strcpy(mensaje,"si");
 		enviarAlMismo(mensaje,cliente.nSocket);
@@ -115,14 +124,13 @@ int main(int argc,char *argv[])
 	char ip[INET_ADDRSTRLEN];
 	signal(SIGINT, intHandler);
 
-	
-	
 	if(argc != 3) {
 		puts("Error. La ejecucion debe ser del siguiente estilo: ./server {puerto server} {cantidad de clientes en la sala}");
 		printf(". Ejemplo de ejecucion: ./server 3500 3");
 		exit(1);
 	}
 	nPuerto = atoi(argv[1]);
+	esPuertoValido(nPuerto);
 	cantMinCli = atoi(argv[2]);
 	serverSock = socket(AF_INET,SOCK_STREAM,0);
 	memset(serverAddr.sin_zero,'\0',sizeof(serverAddr.sin_zero));
@@ -141,6 +149,7 @@ int main(int argc,char *argv[])
 		perror("Server: error en listen");
 		exit(1);
 	}
+	puts("Server: esperando que se conecten todos los clientes para comenzar la sala de chat\n");
 
 	while(1) {
 		if((cliSock = accept(serverSock,(struct sockaddr *)&cliAddr,&cliAddr_size)) < 0) {
