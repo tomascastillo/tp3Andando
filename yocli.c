@@ -1,56 +1,74 @@
+#include <stdlib.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <pthread.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <pthread.h>
-
-#define AUTOOK 12345
-#define AUTONO 98765
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-int my_sock;
-
+int cliSock;
 
 void serverSalir(){
-	close(my_sock);
+	close(cliSock);
 	exit(0);
-
 }
-void *autorizacion (void * sock)
-{
-	int len;
-	int their_sock = *((int *)sock);
-	char rta [4]="no";//no autorizado
+
+int hostnameToIp(char * hostname , char* ip){
+    struct hostent *he;
+    struct in_addr **addr_list;
+    int i;
+         
+    if ( (he = gethostbyname( hostname ) ) == NULL) 
+    {
+        // get the host info
+        herror("gethostbyname");
+        return 1;
+    }
+ 
+    addr_list = (struct in_addr **) he->h_addr_list;
+     
+    for(i = 0; addr_list[i] != NULL; i++) 
+    {
+        //Return the first one;
+        strcpy(ip , inet_ntoa(*addr_list[i]) );
+        return 0;
+    }
+     
+    return 1;
+}
+
+void *autorizacion (void * sock){
+	int bytesRecv;
+	int serverSock = *((int *)sock);
+	char rta [4]="no";
 	puts("Esperando autorizacion del server para entrar a la sala. Por favor, espere.");
 	while (strcmp(rta,"si")!=0) {
-		if((len = recv(their_sock,rta,3,0)) > 0) {
-			rta[len] = '\0';
+		if((bytesRecv = recv(serverSock,rta,3,0)) > 0) {
+			rta[bytesRecv] = '\0';
 		}
 
 	}
-	puts("\nBienvenido a la sala. Escriba:\n");
+	puts("\nBienvenido a la sala. Ingrese un mensaje:\n");
 	pthread_mutex_unlock(&mutex);
 	bzero(rta,sizeof(rta));
 	fflush(stdout);
 	pthread_exit(NULL);
-
 } 
-void *recvmg(void *sock)
-{
-	int their_sock = *((int *)sock);
-	char msg[500];
-	int len;
-	while((len = recv(their_sock,msg,500,0)) > 0) {
-		msg[len] = '\0';
-		if(strcmp(msg,"SV_EXIT")==0){
+
+void *threadRecvMensaje(void *sock){
+	int serverSock = *((int *)sock);
+	char mensaje[1024];
+	int bytesRecv;
+	while((bytesRecv = recv(serverSock,mensaje,1024,0)) > 0) {
+		mensaje[bytesRecv] = '\0';
+		if(strcmp(mensaje,"SV_EXIT")==0){
 			serverSalir();
 		}
-		fputs(msg,stdout);
-		bzero(msg,sizeof(msg));
+		fputs(mensaje,stdout);
+		bzero(mensaje,sizeof(mensaje));
 		fflush(stdout);
 	}
 
@@ -58,61 +76,62 @@ void *recvmg(void *sock)
 
 int main(int argc, char *argv[])
 {
-	struct sockaddr_in their_addr;
-	//int my_sock;
-	int their_sock;
-	int their_addr_size;
-	int portno;
+	struct sockaddr_in serverAddr;
+	int serverSock,serverAddr_size,nPuerto,bytesRecv;
 	pthread_t sendt,recvt,aut;
-	char msg[500];
-	char username[100];
-	char res[600];
+	char mensaje[1024];
+	char hostname[128],serverIp[128];
+	char res[1100];
 	char ip[INET_ADDRSTRLEN];
-	int len;
-	char nickname[600];
+	char nickname[64];
 
 	if(argc != 4) {
 		puts("Error. La ejecucion debe ser del siguiente estilo: ./cliente {ip/hostname} {puerto server} {nickname}");
 		printf(". Ejemplo de ejecucion: ./cliente localhost 3500 tomas ");
 		exit(1);
 	}
-	portno = atoi(argv[2]);
-	strcpy(username,argv[1]);
+	nPuerto = atoi(argv[2]);
+	strcpy(hostname,argv[1]);
+	if(hostnameToIp(hostname,serverIp)==1){
+		strcpy(serverIp,hostname);
+	}
 	strcpy(nickname,argv[3]);
-	my_sock = socket(AF_INET,SOCK_STREAM,0);
-	memset(their_addr.sin_zero,'\0',sizeof(their_addr.sin_zero));
-	their_addr.sin_family = AF_INET;
-	their_addr.sin_port = htons(portno);
-	their_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	cliSock = socket(AF_INET,SOCK_STREAM,0);
+	memset(serverAddr.sin_zero,'\0',sizeof(serverAddr.sin_zero));
+	serverAddr.sin_family = AF_INET;
+	serverAddr.sin_port = htons(nPuerto);
+	//serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	serverAddr.sin_addr.s_addr = inet_addr(serverIp);
 
-	if(connect(my_sock,(struct sockaddr *)&their_addr,sizeof(their_addr)) < 0) {
-		perror("connection not esatablished");
+	
+	if(connect(cliSock,(struct sockaddr *)&serverAddr,sizeof(serverAddr)) < 0) {
+		perror("Cliente: error. Conexion no establecida");
 		exit(1);
 	}
-	inet_ntop(AF_INET, (struct sockaddr *)&their_addr, ip, INET_ADDRSTRLEN);
-	pthread_create(&aut,NULL,autorizacion,&my_sock);
+	inet_ntop(AF_INET, (struct sockaddr *)&serverAddr, ip, INET_ADDRSTRLEN);
+	pthread_create(&aut,NULL,autorizacion,&cliSock);
 	pthread_mutex_lock(&mutex);
 	pthread_mutex_lock(&mutex);
 	//printf("connected to %s, start chatting\n",ip);
-	pthread_create(&recvt,NULL,recvmg,&my_sock);
+	pthread_create(&recvt,NULL,threadRecvMensaje,&cliSock);
 	fflush(stdin);
 	strcpy(nickname,argv[3]);
-	printf("\n");
-	while(fgets(msg,500,stdin) > 0) {
+	//printf("\n");
+	while(fgets(mensaje,1024,stdin) > 0) {
 		strcpy(res,nickname);
 		strcat(res,":");
-		strcat(res,msg);
-		len = write(my_sock,res,strlen(res));
-		if(len < 0) {
-			perror("message not sent");
+		strcat(res,mensaje);
+		bytesRecv = write(cliSock,res,strlen(res));
+		if(bytesRecv < 0) {
+			perror("Error: mensaje no enviado");
 			exit(1);
 		}
 		printf("%s\n",res);
-		bzero(msg,sizeof(msg));
+		bzero(mensaje,sizeof(mensaje));
 		bzero(res,sizeof(res));
 	}
 	pthread_join(recvt,NULL);
-	close(my_sock);
+	close(cliSock);
 	pthread_mutex_unlock(&mutex);
 
 }

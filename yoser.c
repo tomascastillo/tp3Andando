@@ -1,115 +1,104 @@
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <pthread.h>
 #include <signal.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <stdio.h>
+#include <string.h>
 
-#define AUTOOK 12345
-#define AUTONO 98765
-
-struct client_info {
-	int sockno;
+struct sInfoCli {
+	int nSocket;
 	char ip[INET_ADDRSTRLEN];
 };
-int clients[100];
-int n = 0,salaLlena=0,cantMinCli;
+
+int vecCli[200];
+int cantCliActuales = 0,salaLlena=0,cantMinCli;
+
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t mutex2 = PTHREAD_MUTEX_INITIALIZER;
 
 void intHandler (int num);
-void sendtoall2(char *msg,int curr)
-{
+
+void enviarAlMismo(char *mensaje,int actual){
 	int i;
-	for(i = 0; i < n; i++) {
-	//puts("sendtoall2 FOR");
-		if(clients[i] == curr) {
-	
-			if(send(clients[i],msg,strlen(msg),0) < 0) {
-				perror("sending failure");
-				continue;
+	for(i = 0; i < cantCliActuales; i++) {
+		if(vecCli[i] == actual) {
+				if(send(vecCli[i],mensaje,strlen(mensaje),0) < 0) {
+					perror("Server: error en send");
+					continue;
 			}
 		}					
 	}
 }
-void sendtoall(char *msg,int curr)
-{
+
+void enviarATodos(char *mensaje,int actual){
 	int i;
-	//pthread_mutex_lock(&mutex);
-	for(i = 0; i < n; i++) {
-		if(clients[i] != curr) {
-			if(send(clients[i],msg,strlen(msg),0) < 0) {
-				perror("sending failure");
+	for(i = 0; i < cantCliActuales; i++) {
+		if(vecCli[i] != actual) {
+			if(send(vecCli[i],mensaje,strlen(mensaje),0) < 0) {
+				perror("Server: error en send");
 				continue;
 			}
 		}
 	}
-	//pthread_mutex_unlock(&mutex);
 }
+
 void salirServer(){
 	int i;
-	printf("\nStopping server\n");
-	sendtoall("SV_EXIT",-1);
-	for(i=0 ; i<n;i++){
-		close(clients[i]);
+	printf("\nCerrando el servidor...\n");
+	enviarATodos("SV_EXIT",-1);
+	for(i=0 ; i<cantCliActuales;i++){
+		close(vecCli[i]);
 	}
 	exit(0);
 }
 
-void *recvmg(void *sock)
-{
-	struct client_info cl = *((struct client_info *)sock);
-	char msg[500];
-	int len;
-	int i;
-	int j;
+void *threadRecvMensaje(void *sock){
+	struct sInfoCli cliente = *((struct sInfoCli *)sock);
+	char mensaje[1024];
+	int bytesRecv,i,j;
 	pthread_mutex_lock(&mutex2);
-	//pthread_mutex_lock(&mutex2);
-	while((len = recv(cl.sockno,msg,500,0)) > 0) {
-		msg[len] = '\0';
-		//puts(msg);
-		sendtoall(msg,cl.sockno);
-		memset(msg,'\0',sizeof(msg));
+	while((bytesRecv = recv(cliente.nSocket,mensaje,1024,0)) > 0) {
+		mensaje[bytesRecv] = '\0';
+		enviarATodos(mensaje,cliente.nSocket);
+		memset(mensaje,'\0',sizeof(mensaje));
 	}
 	pthread_mutex_lock(&mutex);
-	printf("%s disconnected\n",cl.ip);
-	for(i = 0; i < n; i++) {
-		if(clients[i] == cl.sockno) {
+	printf("El cliente: %s se ha desconectado\n",cliente.ip);
+	for(i = 0; i < cantCliActuales; i++) {
+		if(vecCli[i] == cliente.nSocket) {
 			j = i;
-			while(j < n-1) {
-				clients[j] = clients[j+1];
+			while(j < cantCliActuales-1) {
+				vecCli[j] = vecCli[j+1];
 				j++;
 			}
 		}
 	}
-	n--;
-	printf("\nN: %d\n",n);
-	if(n==1&&salaLlena==1){salirServer();}
+	cantCliActuales--;
+	printf("\nServer: cantidad de clientes en la sala: %d\n",cantCliActuales);
+	if(cantCliActuales==1&&salaLlena==1){salirServer();}
 	pthread_mutex_unlock(&mutex);
 }
 
-void *autorizacion (void * sock)
-{
-	
-	struct client_info cl = *((struct client_info *)sock);
-	int len;
-	char msg [3];//no autorizado
+void *autorizacion (void * sock){
+	struct sInfoCli cliente = *((struct sInfoCli *)sock);
+	int bytesRecv;
+	char mensaje [3];
 
-	puts("server: verificando autorizacion");
-	while (n!=cantMinCli&&salaLlena==0) {
-		strcpy(msg,"no");
-		sendtoall2(msg,cl.sockno);
-		memset(msg,'\0',sizeof(msg)); 
+	puts("Server: verificando autorizacion para entrar a la sala.");
+	while (cantCliActuales!=cantMinCli&&salaLlena==0) {
+		strcpy(mensaje,"no");
+		enviarAlMismo(mensaje,cliente.nSocket);
+		memset(mensaje,'\0',sizeof(mensaje)); 
 	}
 		puts("enviando autorizacion");
 		salaLlena=1;
-		strcpy(msg,"si");
-		sendtoall2(msg,cl.sockno);
-		memset(msg,'\0',sizeof(msg));
+		strcpy(mensaje,"si");
+		enviarAlMismo(mensaje,cliente.nSocket);
+		memset(mensaje,'\0',sizeof(mensaje));
 		pthread_mutex_unlock(&mutex2);
 		pthread_exit(NULL);
 
@@ -117,15 +106,12 @@ void *autorizacion (void * sock)
 } 
 int main(int argc,char *argv[])
 {
-	struct sockaddr_in my_addr,their_addr;
-	int my_sock;
-	int their_sock;
-	socklen_t their_addr_size;
-	int portno;
+	struct sockaddr_in serverAddr,cliAddr;
+	int serverSock,cliSock,nPuerto,bytesRecv;
+	socklen_t cliAddr_size;
 	pthread_t sendt,recvt,aut;
-	char msg[500];
-	int len;
-	struct client_info cl;
+	char mensaje[1024];
+	struct sInfoCli cliente;
 	char ip[INET_ADDRSTRLEN];
 	signal(SIGINT, intHandler);
 
@@ -136,52 +122,52 @@ int main(int argc,char *argv[])
 		printf(". Ejemplo de ejecucion: ./server 3500 3");
 		exit(1);
 	}
-	portno = atoi(argv[1]);
+	nPuerto = atoi(argv[1]);
 	cantMinCli = atoi(argv[2]);
-	my_sock = socket(AF_INET,SOCK_STREAM,0);
-	memset(my_addr.sin_zero,'\0',sizeof(my_addr.sin_zero));
-	my_addr.sin_family = AF_INET;
-	my_addr.sin_port = htons(portno);
-	my_addr.sin_addr.s_addr= INADDR_ANY;
-	//my_addr.sin_addr.s_addr = inet_addr(INADDR_ANY);
-	their_addr_size = sizeof(their_addr);
+	serverSock = socket(AF_INET,SOCK_STREAM,0);
+	memset(serverAddr.sin_zero,'\0',sizeof(serverAddr.sin_zero));
+	serverAddr.sin_family = AF_INET;
+	serverAddr.sin_port = htons(nPuerto);
+	serverAddr.sin_addr.s_addr= INADDR_ANY;
+	//serverAddr.sin_addr.s_addr = inet_addr(INADDR_ANY);
+	cliAddr_size = sizeof(cliAddr);
 
-	if(bind(my_sock,(struct sockaddr *)&my_addr,sizeof(my_addr)) != 0) {
-		perror("binding unsuccessful");
+	if(bind(serverSock,(struct sockaddr *)&serverAddr,sizeof(serverAddr)) != 0) {
+		perror("Server: error bind");
 		exit(1);
 	}
 
-	if(listen(my_sock,10) != 0) {
-		perror("listening unsuccessful");
+	if(listen(serverSock,10) != 0) {
+		perror("Server: error en listen");
 		exit(1);
 	}
 
 	while(1) {
-		if((their_sock = accept(my_sock,(struct sockaddr *)&their_addr,&their_addr_size)) < 0) {
-			perror("accept unsuccessful");
+		if((cliSock = accept(serverSock,(struct sockaddr *)&cliAddr,&cliAddr_size)) < 0) {
+			perror("Server: error en accept");
 			exit(1);
 		}
 		pthread_mutex_lock(&mutex);
-		inet_ntop(AF_INET, (struct sockaddr *)&their_addr, ip, INET_ADDRSTRLEN);
-		printf("%s connected\n",ip);
-		cl.sockno = their_sock;
-		strcpy(cl.ip,ip);
-		clients[n] = their_sock;
-		n++;
-		pthread_create(&aut,NULL,autorizacion,&cl);
-		pthread_create(&recvt,NULL,recvmg,&cl);
+		inet_ntop(AF_INET, (struct sockaddr *)&cliAddr, ip, INET_ADDRSTRLEN);
+		printf("La ip %s se ha conectado\n",ip);
+		cliente.nSocket = cliSock;
+		strcpy(cliente.ip,ip);
+		vecCli[cantCliActuales] = cliSock;
+		cantCliActuales++;
+		pthread_create(&aut,NULL,autorizacion,&cliente);
+		pthread_create(&recvt,NULL,threadRecvMensaje,&cliente);
 		pthread_mutex_unlock(&mutex);
 
 	}
 	return 0;
-	}
+}
 
 void intHandler (int num){
 	int i;
-	printf("\nStopping server\n");
-	sendtoall("SV_EXIT",-1);
-	for(i=0 ; i<n;i++){
-		close(clients[i]);
+	printf("\nCerrando el servidor...\n");
+	enviarATodos("SV_EXIT",-1);
+	for(i=0 ; i<cantCliActuales;i++){
+		close(vecCli[i]);
 	}
 	exit(0);
 }
