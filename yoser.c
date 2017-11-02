@@ -37,7 +37,7 @@ void sendtoall2(char *msg,int curr)
 void sendtoall(char *msg,int curr)
 {
 	int i;
-	pthread_mutex_lock(&mutex);
+	//pthread_mutex_lock(&mutex);
 	for(i = 0; i < n; i++) {
 		if(clients[i] != curr) {
 			if(send(clients[i],msg,strlen(msg),0) < 0) {
@@ -46,7 +46,7 @@ void sendtoall(char *msg,int curr)
 			}
 		}
 	}
-	pthread_mutex_unlock(&mutex);
+	//pthread_mutex_unlock(&mutex);
 }
 void salirServer(){
 	int i;
